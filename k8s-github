@@ -1,0 +1,298 @@
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+
+
+
+
+
+
+kind version
+
+
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+
+
+
+
+
+
+kind create cluster --config kind-config.yaml --image kindest/node:v1.23.0
+
+
+
+
+kubectl cluster-info
+kubectl get nodes
+
+
+
+
+
+kubectl config use-context kind-kind
+
+
+
+
+
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
+
+
+kubectl proxy
+
+
+
+kind delete cluster
+
+
+
+
+
+
+---commands---------
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+  793  chmod +x ./kind
+  794  sudo mv ./kind /usr/local/bin/kind
+  795  kind version
+  796  vi sudheer-kind.yaml
+  797  kind create cluster --config sudheer-kind.yaml --image kindest/node:v1.23.0
+  798  kubectl cluster-info
+  799  kubectl get nodes
+  800  kubectl config use-context kind-kind
+  801  kind clusters
+  802  kubectl get nodes
+  803  kubectl cluster-info --context kind-kin
+  804  kubectl cluster-info --context kind-kind
+  805  kind clusters
+  806  kind get clusters
+  807  history
+  
+  
+ ---------------------------------
+
+
+
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
+
+
+
+==============K8s-notes============================
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: spring
+  
+  
+  
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-role
+  namespace: spring
+rules:
+  - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+    resources:
+      - pods
+      - secrets
+      - componentstatuses
+      - configmaps
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    
+    
+    
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: spring 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role 
+subjects:
+- namespace: spring 
+  kind: ServiceAccount
+  name: jenkins 
+  
+ 
+ 
+ 
+ eyJhbGciOiJSUzI1NiIsImtpZCI6ImF3S0NKUm83c21LWWM2WVgwbGFFOGhpZjNaeGdlTl96UExlMTk2UmFZZ1EifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJzcHJpbmciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoiZGVmYXVsdC10b2tlbi1tZ2drdiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiYWNiMjc1MzQtM2Y0Zi00MmM5LWE3YzgtYWQ4YjdjZWRkNzRjIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OnNwcmluZzpkZWZhdWx0In0.C3T-dTgWLWCsl2ZpPHwxcoW5xfYT_dOV2L_l5hoIhNpUu_m9qmYNHUxAC3zNsZ1X0XUEUAuMJJz3ng5L4eL_g7Wkx41khzFPd4HnzCLs7IlL7-tJQ7O5AMr3uV8F7DI1eqJ9ZjCKXl_FU_Bi6zNQyRxbPEeX045ju0RkAuo4pEBayWhuyjyaRjnDPsOBJJMCyS62V1y-0f2oFC0RUmP68TVdtg1zbruypBcQ935L_14QgCsks8clD7Dv0MXzv7y_YzNFzp34lfBxMY8qGB9LhRpQaUSdt41-IULPZZWuDd7gPsndaX3NZEEtO_Sb0xP92gAq34XzJXizgCAjuYflIw
+ 
+ 
+ 
+ 
+ 
+
+
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'JDK17'
+        maven 'MAVEN3'
+    }
+    
+    environment {
+       scannerHome = tool 'sonar-scanner'
+   }
+
+
+    stages {
+        
+        
+        stage('Git checkout') {
+            steps {
+                git credentialsId: 'gitlab', url: 'http://10.10.16.125:8929/b96user13/spring-docker-repo.git'
+            }
+        }
+        
+        /*
+        stage('Code coverage') {
+            steps {
+                jacoco()
+            }
+        }  */
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                       sh 'mvn sonar:sonar'
+                 }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        
+        /*
+        stage('Build and Push and Run Image') {
+            steps{
+              script {
+                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                       sh 'docker build -t dockerlearning2022/spring-docker:6 .'
+                       sh 'docker push dockerlearning2022/spring-docker:6'
+                    //   sh 'docker run -d --name spring-docker -p 9091:9091 dockerlearning2022/spring-docker:1'
+                       
+                  }
+              }
+            }
+        }
+        
+        stage('K8s-deploy') {
+            steps {
+                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'kind-kind', contextName: 'kind-kind', credentialsId: 'spring-cred', namespace: 'spring', serverUrl: 'https://127.0.0.1:45101']]) {
+                    sh 'kubectl apply -f deploy.yaml'
+                    sleep 60
+               }
+            }
+        }
+        
+        stage('K8s-views') {
+            steps {
+                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'kind-kind', contextName: 'kind-kind', credentialsId: 'spring-cred', namespace: 'spring', serverUrl: 'https://127.0.0.1:45101']]) {
+                    sh 'kubectl get pods -n spring'
+                    sh 'kubectl get svc -n spring'
+                }
+            }
+        }
+        
+        /*
+        stage('K8s') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'kind-kind', contextName: 'kind-kind', credentialsId: 'k8s-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:45101') {
+                    sh 'kubectl apply -f deploy.yaml '
+                    sleep 60
+                }
+            }
+        }
+        
+        stage('K8s-view') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'kind-kind', contextName: 'kind-kind', credentialsId: 'k8s-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:45101') {
+                    sh 'kubectl get pods -n webapps'
+                    sh 'kubectl get svc -n webapps'
+                }
+            }
+        }  */
+       
+    }
+}
+
+===========No need=================
+
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: jenkins
+
+
+
+
+kubectl create ns spring
+
+
+
+
+========================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
